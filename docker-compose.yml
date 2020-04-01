@@ -1,0 +1,39 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:5.7
+    command: --innodb_use_native_aio=0
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=testdb
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - 3305:3306
+ 
+  php:
+    build:
+      context: ./php
+    volumes:
+      # - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./www:/var/www:cached
+    ports:
+      - 8888:80
+ 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      # - PMA_HOST=192.168.99.100
+      - PMA_HOST=192.168.0.3
+      - PMA_USER=user
+      - PMA_PASSWORD=password
+    links:
+      - mysql
+    ports:
+       - 8000:80
+    volumes:
+       - /sessions
